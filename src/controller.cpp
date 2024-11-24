@@ -28,7 +28,7 @@ void* EXPORTS_LoadModule(const char*, const wchar_t* filePath) {
 }
 
 FUNCTION_PTR EXPORTS_GetModuleProcAddress(void* module, const char* symbolName) {
-    return GetProcAddress(reinterpret_cast<HMODULE>(module), symbolName);
+    return reinterpret_cast<FUNCTION_PTR>(GetProcAddress(reinterpret_cast<HMODULE>(module), symbolName));
 }
 
 FUNCTION_PTR EXPORTS_ResolveModuleSymbol(const char* symbolName) {
@@ -140,7 +140,7 @@ void discoverLoaderMods(std::map<std::string, HMODULE>& discoveredModules, const
 
 void bootstrapLoaderMods(const std::map<std::string, HMODULE>& discoveredModules, const std::wstring& gameRootDirectory) {
     for (auto& loaderModule : discoveredModules) {
-        FUNCTION_PTR bootstrapFunc = GetProcAddress(loaderModule.second, "BootstrapModule");
+        FUNCTION_PTR bootstrapFunc = reinterpret_cast<FUNCTION_PTR>(GetProcAddress(loaderModule.second, "BootstrapModule"));
         if (bootstrapFunc == nullptr) {
             Logging::logFile << "[WARNING]: BootstrapModule() not found in loader module " << loaderModule.first << "!" << std::endl;
             return;
